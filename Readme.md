@@ -24,6 +24,12 @@ Run this command in the graphical CLI:
 svn checkout https://github.com/hillad3/kol-telegram/trunk/Release/
 ```
 
+Possibly try:
+```
+git checkout hillad3/kol-telegram
+
+```
+
 ## Usage
 
 **gcli**
