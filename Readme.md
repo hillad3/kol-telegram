@@ -19,7 +19,7 @@ the mall.
 Run this command in the graphical CLI:
 
 ```
-svn checkout https://github.com/macgregor/kol-telegram/trunk/Release/
+svn checkout https://github.com/hillad3/kol-telegram/trunk/Release/
 ```
 
 ## Usage
