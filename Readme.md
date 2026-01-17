@@ -1,6 +1,8 @@
 # telegram
 Automate LT&T Telegram Office item of the month
 
+Original credit goes to @macgregor for creating this script. I forked it because I wasn't able to get the svn installation to work. Going to see if I fix that here and provide some minimal improvements while I'm at it.
+
 Tested Successfully Against:
 * Unusual construct
 * Granny Hackleton
