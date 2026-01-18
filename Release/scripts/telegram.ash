@@ -1,77 +1,64 @@
 script "telegram"
 
+import <telegram/__telegram_helpers.ash>;
+import <telegram/__telegram_shop.ash>;
 import <telegram/__telegram_data.ash>;
-import <telegram/__telegram_boss_fight.ash>;
+import <telegram/__telegram_boss.ash>;
+
+static string telegram_version = "0.2";
 
 /*
- * Public interface, other ash scripts can safely import and call these methods
+ * Publically callable methods in this script:
+ * -  string telegram_version
+ * -  boolean do_ltt_office_quest(int difficulty, boolean do_boss_prep, boolean do_boss_fight)
+ * -  void print_available_ltt_office_quests()
+ * -  int buy_inflatable_ltt_office(int max_to_buy)
+ * -  boolean accept_overtime()
  */
-static string telegram_version = "0.1";
 
-boolean accept_overtime();
-int buy_all_inflatable_ltt_office();
-int buy_one_inflatable_ltt_office();
-void do_ltt_office_quest_easy(boolean should_prepare_for_boss);
-void do_ltt_office_quest_hard(boolean should_prepare_for_boss);
-void do_ltt_office_quest_medium(boolean should_prepare_for_boss);
-void print_available_ltt_office_quests();
 
-boolean __page_contains(string url, string text){
-  return contains_text(visit_url(url), text);
+void __print_version(){
+  print("telegram v" + telegram_version);
 }
 
-string __available_quest(string ltt_office_page, monster[string] possible_quests){
-  foreach q in possible_quests {
-    matcher m = create_matcher(q, ltt_office_page);
-    if(m.find()){
-      return q;
-    }
-  }
-  return "";
+void __print_help(){
+  __print_version();
+  print("");
+  print_html("<b>usage</b>: telegram [-h|--help] [-v|--version] [--no-prep] [--no-boss] [--spend-dimes] [difficulty] \
+<p/><b>-h</b>, <b>--help</b> - display this usage message and exit\
+<b>-v</b>, <b>--version</b> - display version and exit\
+<b>--no-prep</b> - by default telegram will optimize equipment and buffs before the boss fight (which could be expensive and overly cautious), with this flag set, the script assumes you have already set up appropriate buffs and equipment to complete the fight. \
+<b>--no-boss</b> - by default telegram will try to fight the boss, you can have the script stop at the boss by setting this flag \
+<b>--spend-dimes</b> - tries to buy Inflatable LT&T telegraph office with buffalo dimes. Note this runs after completing the quest, you cant run telegram with just this flag just to have it buy inflatables, it will always attempt to do a quest first. \
+<b>difficulty</b> - desired quest difficulty. Case insensitive. Not required if \
+a telegram quest has already been started. Can be one of:\
+<ul><li>easy, 1 - do easy quest</li> \
+<li>medium, 2 - do medium quest</li>\
+<li>hard, 3 - do hard quest</li></ul>");
+}
+ 
+/*
+ * Prints the available quests to the gcli
+ */
+void print_available_ltt_office_quests(){
+  string page = __visit_ltt_office();
+  __leave_ltt_office();
+  print("[1. Easy] " + __available_quest(page, TELEGRAM_EASY_QUESTS));
+  print("[2. Medium] " + __available_quest(page, TELEGRAM_MEDIUM_QUESTS));
+  print("[3. Hard] " + __available_quest(page, TELEGRAM_HARD_QUESTS));
 }
 
-boolean __ltt_office_available(){
-  return __page_contains("place.php?whichplace=town_right", "lttoffice.gif");
-}
-
-boolean __ltt_quests_available(string ltt_office_page){
-  return __available_quest(ltt_office_page, EASY_QUESTS) != "" && __available_quest(ltt_office_page, MEDIUM_QUESTS) != "" && __available_quest(ltt_office_page, HARD_QUESTS) != "";
-}
-
-string __visit_ltt_office(){
-  return visit_url("place.php?whichplace=town_right&action=townright_ltt");
-}
-
-string __visit_ltt_office(int choice){
-  __visit_ltt_office();
-  return run_choice(choice);
-}
-
-void __leave_ltt_office(){
-  run_choice(LEAVE_OFFICE);
-}
-
-boolean __have_telegram(){
-  return item_amount($item[plaintive telegram]) > 0;
-}
-
-boolean __overtime_available(string ltt_office_page){
-  matcher m = create_matcher("Pay overtime", ltt_office_page);
-  return m.find();
-}
 
 /*
-<form style='margin: 0px 0px 0px 0px;' name=choiceform4 action=choice.php method=post><input type=hidden name=pwd value='pwhash'><input type=hidden name=whichchoice value=1171><input type=hidden name=option value=4><input  class=button type=submit value="Pay overtime (10,000 Meat)"></form><p><form style='margin: 0px 0px 0px 0px;' name=choiceform6 action=choice.php method=post><input type=hidden name=pwd value='pwhash'><input type=hidden name=whichchoice value=1171><input type=hidden name=option value=6><input  class=button type=submit value="Check out the Gift Shop"></form><p><form style='margin: 0px 0px 0px 0px;' name=choiceform8 action=choice.php method=post><input type=hidden name=pwd value='pwhash'><input type=hidden name=whichchoice value=1171><input type=hidden name=option value=8><input  class=button type=submit value="Leave">
+ * Do Easy/Medium/Hard LT&T Office quest. 
+ * Should be able to pick it up in any state of completion.
+ *
+ * Returns true if the quest was completed successfully, false otherwise.
  */
-int __overtime_cost(string ltt_office_page){
-  if(__overtime_available(ltt_office_page)){
-    matcher m = create_matcher("(Pay overtime \(.*?\))", ltt_office_page);
-    if(m.find()){
-      return extract_meat(m.group(1));
-    }
-  }
-  return -1;
+boolean do_ltt_office_quest(int difficulty, boolean do_boss_prep, boolean do_boss_fight) {
+    return __do_ltt_office_quest(difficulty, do_boss_prep, do_boss_fight);
 }
+
 
 /*
  * Internal method, checks if the LT&T office is accessible, accepts a quest of
@@ -80,61 +67,22 @@ int __overtime_cost(string ltt_office_page){
  *
  * returns true if it was able to complete an LT&T quest, false otherwise
  */
-boolean __do_ltt_office_quest(int difficulty, boolean should_prepare_for_boss, boolean should_fight_boss){
- if(__ltt_office_available()){
-   cli_execute("refresh inv");
-   if(!__have_telegram() || get_property("questLTTQuestByWire") == "unstarted"){
-     if(__overtime_available(__visit_ltt_office()) && !accept_overtime()){
-       print("Wasnt able to take on overtime quest", "red");
-       return false;
-     }
-     if(__ltt_quests_available(__visit_ltt_office())){
-       print("Accepting quest");
-       run_choice(difficulty);
-     } else{
-       print("There dont seem to be any telegram quests available in the LT&T office.", "red");
-       return false;
-     }
-   }
-   if(!__have_telegram()){
-     print("We should have a plaintive telegram by now, something is wrong.", "red");
-     return false;
-   }
+boolean __do_ltt_office_quest(int difficulty, boolean do_boss_prep, boolean do_boss_fight) {
+  if (!__check_ltt_access()) return false;
+  if (!__ensure_quest_started(difficulty)) return false;
 
-   int stage_count = get_property("lttQuestStageCount").to_int();
-   string current_stage = get_property("questLTTQuestByWire");
+  __advance_quest_to_boss();
 
-   if($strings[step1, step2, step3, started] contains current_stage && (current_stage != "step3" || stage_count < 9)){
-     repeat{
-       adventure(1, $location[Investigating a Plaintive Telegram]);
-       stage_count = get_property("lttQuestStageCount").to_int();
-       current_stage = get_property("questLTTQuestByWire");
-     } until(current_stage == "step3" && stage_count == 9);
-   }
+  print("LT&T boss is up next.");
 
-   print("LT&T boss is up next.");
-   if(should_fight_boss){
-     __fight_boss(should_prepare_for_boss);
-     stage_count = get_property("lttQuestStageCount").to_int();
-     current_stage = get_property("questLTTQuestByWire");
+  if (do_boss_fight) {
+    return __handle_boss(do_boss_prep);
+  }
 
-     if(current_stage == "step3"){
-       print("I dont think we won that fight, sorry!", "red");
-       return false;
-     } else{
-       print("Completed LT&T office quest.", "green");
-       return true;
-     }
-   } else{
-     __print_boss_hint(__determine_boss());
-     print("When you are ready to fight the boss you can run the script again.", "green");
-     return false;
-   }
- } else{
-   print("LT&T Office inaccessible?", "red");
-   return false;
- }
+  __show_boss_ready_hint();
+  return false;
 }
+
 
 /*
  * Accept overtime if one is available. Will prompt for user confirmation
@@ -157,7 +105,7 @@ boolean accept_overtime(){
       print("You cant afford " + cost + " for overtime.", "red");
       return false;
     }
-    run_choice(ACCEPT_OVERTIME);
+    run_choice(TELEGRAM_ACCEPT_OVERTIME);
     boolean can_accept_quest = __ltt_quests_available(__visit_ltt_office());
     __leave_ltt_office();
     return can_accept_quest;
@@ -165,98 +113,34 @@ boolean accept_overtime(){
   return false;
 }
 
-/*
- * Prints the available quests to the gcli
- */
-void print_available_ltt_office_quests(){
-  string page = __visit_ltt_office();
-  __leave_ltt_office();
-  print("[1. Easy] " + __available_quest(page, EASY_QUESTS));
-  print("[2. Medium] " + __available_quest(page, MEDIUM_QUESTS));
-  print("[3. Hard] " + __available_quest(page, HARD_QUESTS));
-}
 
 /*
- * Do Hard LT&T Office quest. Should be able to pick it up in any state of completion.
+ * Tries to buy up to max input of Inflatable LT&T telegraph office,
+ * assuming you can afford with buffalo dimes.
  *
- * returns true if the quest was completed successfully, false otherwise.
+ * Returns the number of Inflatable LT&T telegraph office purchased
  */
-boolean do_ltt_office_quest_hard(boolean should_prepare_for_boss, boolean should_fight_boss){
-  return __do_ltt_office_quest(ACCEPT_HARD_QUEST, should_prepare_for_boss, should_fight_boss);
-}
-
-/*
- * Do Medium LT&T Office quest. Should be able to pick it up in any state of completion.
- *
- * returns true if the quest was completed successfully, false otherwise.
- */
-boolean do_ltt_office_quest_medium(boolean should_prepare_for_boss, boolean should_fight_boss){
-  return __do_ltt_office_quest(ACCEPT_MEDIUM_QUEST, should_prepare_for_boss, should_fight_boss);
-}
-
-/*
- * Do Easy LT&T Office quest. Should be able to pick it up in any state of completion.
- *
- * returns true if the quest was completed successfully, false otherwise.
- */
-boolean do_ltt_office_quest_easy(boolean should_prepare_for_boss, boolean should_fight_boss){
-  return __do_ltt_office_quest(ACCEPT_EASY_QUEST, should_prepare_for_boss, should_fight_boss);
-}
-
-/*
- * Tries to buy as many Inflatable LT&T telegraph office you can afford with buffalo dimes.
- *
- * returns the number of Inflatable LT&T telegraph office purchased
- */
-int buy_all_inflatable_ltt_office(){
+int buy_inflatable_ltt_office(int max_to_buy) {
   print("Checking if Inflatable LT&T telegraph office are affordable.");
+  
   item inflatable = $item[Inflatable LT&T telegraph office];
   int dimes_needed = sell_price(inflatable.seller, inflatable);
   int bought = 0;
-  while(__ltt_office_available() && inflatable.seller.available_tokens >= dimes_needed){
-    if(!buy(inflatable.seller, 1, inflatable)){
+
+  while (__ltt_office_available()
+         && inflatable.seller.available_tokens >= dimes_needed
+         && bought < max_to_buy) {
+
+    if (!buy(inflatable.seller, 1, inflatable)) {
       break;
     }
+
     bought++;
   }
+
   return bought;
 }
 
-/*
- * Tries to buy one Inflatable LT&T telegraph office with buffalo dimes.
- *
- * returns true if one Inflatable LT&T telegraph office was purchased, false if not
- * (you cant afford one, dont have access to the LT&T office, etc)
- */
-boolean buy_one_inflatable_ltt_office(){
-  print("Checking if Inflatable LT&T telegraph office are affordable.");
-  item inflatable = $item[Inflatable LT&T telegraph office];
-  int dimes_needed = sell_price(inflatable.seller, inflatable);
-  if(__ltt_office_available() && inflatable.seller.available_tokens >= dimes_needed){
-    return buy(inflatable.seller, 1, inflatable);
-  }
-  return false;
-}
-
-void __print_version(){
-  print("telegram v" + telegram_version);
-}
-
-void __print_help(){
-  __print_version();
-  print("");
-  print_html("<b>usage</b>: telegram [-h|--help] [-v|--version] [--no-prep] [--no-boss] [--spend-dimes] [difficulty] \
-<p/><b>-h</b>, <b>--help</b> - display this usage message and exit\
-<b>-v</b>, <b>--version</b> - display version and exit\
-<b>--no-prep</b> - by default telegram will optimize equipment and buffs before the boss fight (which could be expensive and overly cautious), with this flag set, the script assumes you have already set up appropriate buffs and equipment to complete the fight. \
-<b>--no-boss</b> - by default telegram will try to fight the boss, you can have the script stop at the boss by setting this flag \
-<b>--spend-dimes</b> - tries to buy Inflatable LT&T telegraph office with buffalo dimes. Note this runs after completing the quest, you cant run telegram with just this flag just to have it buy inflatables, it will always attempt to do a quest first. \
-<b>difficulty</b> - desired quest difficulty. Case insensitive. Not required if \
-a telegram quest has already been started. Can be one of:\
-<ul><li>easy, 1 - do easy quest</li> \
-<li>medium, 2 - do medium quest</li>\
-<li>hard, 3 - do hard quest</li></ul>");
-}
 
 void main(string args){
   if (args == ""){
@@ -265,9 +149,9 @@ void main(string args){
 	}
 
   int difficulty = get_property("lttQuestDifficulty").to_int();
-  boolean should_prepare_for_boss = true;
-  boolean should_fight_boss = true;
-  boolean should_spend_dimes = false;
+  boolean do_boss_prep = true;
+  boolean do_boss_fight = true;
+  boolean can_spend_dimes = false;
 
   foreach key, argument in args.split_string(" "){
 		argument = argument.to_lower_case();
@@ -281,25 +165,25 @@ void main(string args){
         __print_version();
         return;
       case "easy":
-      case to_string(ACCEPT_EASY_QUEST):
-        difficulty = ACCEPT_EASY_QUEST;
+      case to_string(TELEGRAM_QUEST_EASY):
+        difficulty = TELEGRAM_QUEST_EASY;
         break;
       case "medium":
-      case to_string(ACCEPT_MEDIUM_QUEST):
-        difficulty = ACCEPT_MEDIUM_QUEST;
+      case to_string(TELEGRAM_QUEST_MEDIUM):
+        difficulty = TELEGRAM_QUEST_MEDIUM;
         break;
       case "hard":
-      case to_string(ACCEPT_HARD_QUEST):
-        difficulty = ACCEPT_HARD_QUEST;
+      case to_string(TELEGRAM_QUEST_HARD):
+        difficulty = TELEGRAM_QUEST_HARD;
         break;
       case "--no-prep":
-        should_prepare_for_boss = false;
+        do_boss_prep = false;
         break;
       case "--no-boss":
-        should_fight_boss = false;
+        do_boss_fight = false;
         break;
       case "--spend-dimes":
-        should_spend_dimes = true;
+        can_spend_dimes = true;
         break;
       default:
         print("Unexpected argument: " + argument, "red");
@@ -309,12 +193,12 @@ void main(string args){
 
   __print_version();
 
-  if(difficulty < ACCEPT_EASY_QUEST || difficulty > ACCEPT_HARD_QUEST){
+  if(difficulty < TELEGRAM_QUEST_EASY || difficulty > TELEGRAM_QUEST_HARD){
     abort("Invalid quest difficulty provided: " + difficulty);
   }
-  __do_ltt_office_quest(difficulty, should_prepare_for_boss, should_fight_boss);
+  __do_ltt_office_quest(difficulty, do_boss_prep, do_boss_fight);
 
-  if(should_spend_dimes){
+  if(can_spend_dimes){
     buy_all_inflatable_ltt_office();
   }
 }
