@@ -1,14 +1,13 @@
 script "telegram"
 
 import <telegram/__telegram_helpers.ash>;
-import <telegram/__telegram_shop.ash>;
 import <telegram/__telegram_data.ash>;
 import <telegram/__telegram_boss.ash>;
 
 static string telegram_version = "0.2";
 
 /*
- * Publically callable methods in this script:
+ * The following are meant to be publically callable methods in this script:
  * -  string telegram_version
  * -  boolean do_ltt_office_quest(int difficulty, boolean do_boss_prep, boolean do_boss_fight)
  * -  void print_available_ltt_office_quests()
