@@ -164,6 +164,22 @@ boolean __ensure_quest_started(int difficulty) {
   return true;
 }
 
+string __handle_restless_ghost(int round, monster opp, string text){
+  // the restless ghost is weak to sauce attacks, so use those if available
+  if(opp == $monster[restless ghost]){
+	  if (! have_skill($skill[Saucegeyser]) ) return "skill Saucegeyser";
+	  if (! have_skill($skill[Saucestorm]) ) return "skill Saucestorm";
+	  if (! have_skill($skill[Stream of Sauce]) ) return "skill Stream of Sauce";
+	  if (! have_skill($skill[Weapon of the Pastalord]) ) return "skill Weapon of the Pastalord";
+	  if (! have_skill($skill[Thrust-Smack]) ) return "skill Thrust-Smack";
+	  if (! have_skill($skill[Lunge Smack]) ) return "skill Lunge Smack";
+	  if (! have_skill($skill[Lunging Thrust-Smack]) ) return "skill Lunging Thrust-Smack";
+    return "attack";
+  } else {
+	  return "attack";
+  }
+}
+
 void __advance_quest_to_boss() {
   int stage_count = get_property("lttQuestStageCount").to_int();
   string current_stage = get_property("questLTTQuestByWire");
@@ -172,7 +188,7 @@ void __advance_quest_to_boss() {
       (current_stage != "step3" || stage_count < 9)) {
 
     repeat {
-      adventure(1, $location[Investigating a Plaintive Telegram]);
+      adventure(1, $location[Investigating a Plaintive Telegram], "__handle_restless_ghost");
       stage_count = get_property("lttQuestStageCount").to_int();
       current_stage = get_property("questLTTQuestByWire");
     } until (current_stage == "step3" && stage_count == 9);
