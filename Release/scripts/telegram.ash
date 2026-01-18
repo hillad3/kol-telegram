@@ -4,7 +4,7 @@ import <telegram/__telegram_helpers.ash>;
 import <telegram/__telegram_data.ash>;
 import <telegram/__telegram_boss.ash>;
 
-static string telegram_version = "0.2";
+static string telegram_version = "1.0";
 
 /*
  * The following are meant to be publically callable methods in this script:
