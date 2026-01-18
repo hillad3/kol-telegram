@@ -1,5 +1,5 @@
-import <telegram/__telegram_data.ash>;
-import <telegram/__telegram_boss.ash>;
+import <__telegram_data.ash>;
+import <__telegram_boss.ash>;
 
 
 boolean __page_contains(string url, string text){
@@ -179,8 +179,8 @@ void __advance_quest_to_boss() {
   }
 }
 
-boolean __handle_boss(boolean do_prep_boss) {
-  __fight_boss(do_prep_boss);
+boolean __handle_boss(boolean do_boss_prep) {
+  __fight_boss(do_boss_prep);
 
   string current_stage = get_property("questLTTQuestByWire");
   if (current_stage == "step3") {
