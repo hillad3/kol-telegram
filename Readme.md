@@ -20,7 +20,6 @@ the mall.
 ## Installation
 Run this command in the graphical CLI:
 
-Possibly try:
 ```
 git checkout hillad3/kol-telegram
 ```
@@ -71,38 +70,37 @@ print_available_ltt_office_quests();
 // do easy quest, first of the day so its free
 // easy quest bosses are easy! not necessarily true, but for demonstration purposes
 // theres no need to waste meat on buffs and combat items
-boolean should_prep_for_boss = false;
-boolean should_fight_boss = true;
-do_ltt_office_quest_easy(should_prep_for_boss, should_fight_boss);
+boolean do_boss_prep = false; // this determine if script will prepare for the boss fight
+boolean do_boss_fight = true;
+do_ltt_office_quest(1, do_boss_prep, do_boss_fight);
 
 // if you are using inflatables you cant do any more, otherwise you need to accept overtime
 // first one costs 1,000
 accept_overtime();
-do_ltt_office_quest_medium(should_prep_for_boss, should_fight_boss);
+do_ltt_office_quest(ACCEPT_MEDIUM_QUEST, do_boss_prep, do_boss_fight);
 
 // the do_ltt_office_quest_* methods will also auto accept overtime for you if needed.
-// second costs 10,000. Bosses are tough, lets the script prepare for them
-should_prep_for_boss = true
-do_ltt_office_quest_hard(should_prep_for_boss, should_fight_boss);
+// second costs 10,000. Hard bosses are tough, lets the script prepare for them
+do_boss_prep = true
+do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
 
 // third costs 100,000
 // after after the 10,000 meat overtime, the script will start prompting you to
 // confirm you want to do overtime since it gets expensive very quickly
 // We are worried about this one so lets stop before fighting the boss so we can
 // do our own prep
-boolean should_prep_for_boss = false;
-boolean should_fight_boss = false;
-do_ltt_office_quest_hard(should_prep_for_boss, should_fight_boss);
+boolean do_boss_prep = false;
+boolean do_boss_fight = false;
+do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
 
-// do some custom equipment/buff management ...
-outfit("badass boss killing outfit");
-cli_execute("mood boss-killing-mood");
-boolean should_fight_boss = true;
-do_ltt_office_quest_hard(should_prep_for_boss, should_fight_boss);
+// Here are some script snippets that may 
+// help you prepare for your fights more easily
+outfit("my badass boss killing outfit");
+cli_execute("my mood boss-killing-mood");
+boolean do_boss_fight = true;
+do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
 
-// lets buy an inflatable office to sell or use later
-buy_one_inflatable_ltt_office();
+// lets you buy any number of inflatable office to sell or use later
+buy_inflatable_ltt_office(int 5);
 
-// heck, lets buy them all
-buy_all_inflatable_ltt_office();
 ```
