@@ -1,3 +1,4 @@
+import <__telegram_data.ash>;
 
 boolean __page_contains(string url, string text){
   return contains_text(visit_url(url), text);
