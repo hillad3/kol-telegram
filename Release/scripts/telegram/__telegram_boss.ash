@@ -1,4 +1,5 @@
 import <__telegram_data.ash>;
+import <telegram/__telegram_data.ash>;
 
 /* Passive Damage dealing stuff, used in Granny Hackleton boss fight */
 static boolean[item] PASSIVE_DMG_COMBAT_ITEMS = $items[gas can, old school beer pull tab, cold mashed potatoes, paint bomb, crazy hobo notebook, bag of gross foreign snacks, possessed tomato, hand grenegg, Colon Annihilation Hot Sauce, jagged scrap metal, jigsaw blade, throwing fork, dinner roll, whole turkey leg, skull with a fuse in it, nastygeist];
@@ -162,11 +163,11 @@ monster __determine_boss(){
   int difficulty = get_property("lttQuestDifficulty").to_int();
 
   if(difficulty == TELEGRAM_QUEST_EASY){
-    boss = EASY_QUESTS[get_property("lttQuestName")];
+    boss = TELEGRAM_EASY_QUESTS[get_property("lttQuestName")];
   } else if(difficulty == TELEGRAM_QUEST_MEDIUM){
-    boss = MEDIUM_QUESTS[get_property("lttQuestName")];
+    boss = TELEGRAM_MEDIUM_QUESTS[get_property("lttQuestName")];
   } else if(difficulty == TELEGRAM_QUEST_HARD){
-    boss = HARD_QUESTS[get_property("lttQuestName")];
+    boss = TELEGRAM_HARD_QUESTS[get_property("lttQuestName")];
   }
 
   return boss;
