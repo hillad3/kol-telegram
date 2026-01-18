@@ -165,6 +165,11 @@ boolean __ensure_quest_started(int difficulty) {
 }
 
 string __handle_restless_ghost(int round, monster opp, string text){
+
+  if (round > 25) {
+    abort("Aborting since combat rounds exceeded 25.");
+  }
+
   // the restless ghost is weak to sauce attacks, so use those if available
   if(opp == $monster[restless ghost]){
 	  if (! have_skill($skill[Saucegeyser]) ) return "skill Saucegeyser";
@@ -181,6 +186,11 @@ string __handle_restless_ghost(int round, monster opp, string text){
 }
 
 void __advance_quest_to_boss() {
+
+  if (have_effect($effect[Beaten Up]) > 0) {
+	  abort("We are beaten up.");
+  }
+
   int stage_count = get_property("lttQuestStageCount").to_int();
   string current_stage = get_property("questLTTQuestByWire");
 
