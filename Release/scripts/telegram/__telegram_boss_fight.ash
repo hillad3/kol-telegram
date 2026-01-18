@@ -161,11 +161,11 @@ monster __determine_boss(){
   monster boss = $monster[none];
   int difficulty = get_property("lttQuestDifficulty").to_int();
 
-  if(difficulty == TELEGRAM_QUEST_EASY){
+  if(difficulty == ACCEPT_EASY_QUEST){
     boss = EASY_QUESTS[get_property("lttQuestName")];
-  } else if(difficulty == TELEGRAM_QUEST_MEDIUM){
+  } else if(difficulty == ACCEPT_MEDIUM_QUEST){
     boss = MEDIUM_QUESTS[get_property("lttQuestName")];
-  } else if(difficulty == TELEGRAM_QUEST_HARD){
+  } else if(difficulty == ACCEPT_HARD_QUEST){
     boss = HARD_QUESTS[get_property("lttQuestName")];
   }
 
