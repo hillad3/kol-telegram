@@ -214,7 +214,7 @@ void __print_boss_hint(monster boss){
  * Internal method. Prepares for and fights the LT&T Office quest boss
  * assumes the next adventure in Investigating a Plaintive Telegram will be the boss.
  */
-boolean __fight_boss(boolean should_prepare){
+boolean __fight_boss(boolean do_boss_prep){
 
   void acquire_and_use(boolean[item] item_array){
     foreach i in item_array{
@@ -348,7 +348,7 @@ boolean __fight_boss(boolean should_prepare){
   }
 
   __print_boss_hint(boss);
-  if(should_prepare){
+  if(do_boss_prep){
     prepare_for_trouble(boss);
   } else{
     print("Trusting that you have already prepared yourself for this battle");
