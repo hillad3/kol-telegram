@@ -60,7 +60,6 @@ boolean do_ltt_office_quest(int difficulty, boolean do_boss_prep, boolean do_bos
 }
 
 
-
 void main(string args){
   if (args == ""){
 		__print_help();
@@ -135,6 +134,6 @@ void main(string args){
   __do_ltt_office_quest(difficulty, do_boss_prep, do_boss_fight);
 
   if(can_spend_dimes){
-    buy_all_inflatable_ltt_office(dimes_to_spend);
+    buy_inflatable_ltt_office(dimes_to_spend);
   }
 }
