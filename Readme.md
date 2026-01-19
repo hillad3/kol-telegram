@@ -99,14 +99,14 @@ do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
 
 A fourth quest will cost 100,000 meat, which is above the default meat threshold of 10,000 the script is allowed to spend. 
 In order to run the script a fourth time, you'll need to call accept_overtime(). If for some reason, you want to prep and fight the 
-boss on your own, you can update the arguments to the function and then apply your own outfit and mood:
+boss on your own, you can update the arguments to the function and then apply your own outfit and mood. This script will get to the boss and apply your outfit and mood before letting the user take over.
 ```
 accept_overtime();
 boolean do_boss_prep = false;
 boolean do_boss_fight = false;
+do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
 outfit("my badass boss killing outfit"); // This outfit must be a default or custom outfit for your character.
 cli_execute("my mood boss-killing-mood"); // Apply a specific mood
-do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
 ```
 
 Finally, you can use this script to help purchase any number of LT&T inflatable offices:
