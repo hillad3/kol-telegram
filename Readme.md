@@ -3,9 +3,7 @@ Automate LT&T Telegram Office item of the month
 
 Original credit goes to @macgregor for creating this script. I forked it because I wasn't able to get the svn installation to work. Going to see if I can fix that here and provide some minimal improvements while I'm at it.
 
-Tested Successfully Against:
-* Unusual construct
-* Granny Hackleton
+Successfully tested agains the Unusual Construct and Granny Hackleton hard bosses.
 
 ## Requirements
 For best results you should have:
@@ -26,7 +24,7 @@ git checkout hillad3/kol-telegram
 
 ## Usage
 
-**gcli**
+Examples of calling this script from the KoL Mafia Graphical CLI:
 
 ```
 > telegram -h
@@ -52,55 +50,68 @@ a telegram quest has already been started. Can be one of:
   * easy, 1 - do easy quest
   * medium, 2 - do medium quest
   * hard, 3 - do hard quest
-
+```
+```
 > telegram easy
+```
+```
 > telegram HARD
+```
+```
 > telegram 2 --no-boss
+```
+```
 > telegram --no-prep
 ```
 
-**ASH**
+Several publically callable functions are available from this script, which could be used within your own scripts as follows. 
+
+To print the available LT&T quests:
 
 ```
 import <telegram.ash>;
 
 // see whats available
 print_available_ltt_office_quests();
+```
 
-// do easy quest, first of the day so its free
-// easy quest bosses are easy! not necessarily true, but for demonstration purposes
-// theres no need to waste meat on buffs and combat items
+In this example, we call do_ltt_office_quest with 1 (i.e., easy). Since it is easy, 
+we won't require the script to prepare for the boss fight (which saves meat from buffs and combat) 
+and we will allow the script to handle the boss fight. 
+```
 boolean do_boss_prep = false; // this determine if script will prepare for the boss fight
 boolean do_boss_fight = true;
 do_ltt_office_quest(1, do_boss_prep, do_boss_fight);
+```
 
-// if you are using inflatables you cant do any more, otherwise you need to accept overtime
-// first one costs 1,000
-accept_overtime();
-do_ltt_office_quest(ACCEPT_MEDIUM_QUEST, do_boss_prep, do_boss_fight);
+If you are using inflatable LT&T offices, then only one quest is allowed per use. If you have a permanent installation, 
+then the second quest of the day will cost 1,000 meat (and subsequent quests will increase by 10x each instance). 
+There are several enums in the format of TELEGRAM_HARD/MEDIUM/EASY_QUEST can be called to set the difficulty of the quest, instead of using integers. 
+```
+do_ltt_office_quest(TELEGRAM_MEDIUM_QUEST, do_boss_prep, do_boss_fight);
+```
 
-// the do_ltt_office_quest_* methods will also auto accept overtime for you if needed.
-// second costs 10,000. Hard bosses are tough, lets the script prepare for them
+The third quest of the day will cost 10,000 meat. Hard bosses are tough, so let the script prepare for it:
+```
 do_boss_prep = true
 do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
+```
 
-// third costs 100,000
-// after after the 10,000 meat overtime, the script will start prompting you to
-// confirm you want to do overtime since it gets expensive very quickly
-// We are worried about this one so lets stop before fighting the boss so we can
-// do our own prep
+A fourth quest will cost 100,000 meat, which is above the default meat threshold of 10,000 the script is allowed to spend. 
+In order to run the script a fourth time, you'll need to call accept_overtime(). If for some reason, you want to prep and fight the 
+boss on your own, you can update the arguments to the function and then apply your own outfit and mood:
+```
+accept_overtime();
 boolean do_boss_prep = false;
 boolean do_boss_fight = false;
+outfit("my badass boss killing outfit"); // This outfit must be a default or custom outfit for your character.
+cli_execute("my mood boss-killing-mood"); // Apply a specific mood
 do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
+```
 
-// Here are some script snippets that may 
-// help you prepare for your fights more easily
-outfit("my badass boss killing outfit");
-cli_execute("my mood boss-killing-mood");
-boolean do_boss_fight = true;
-do_ltt_office_quest(3, do_boss_prep, do_boss_fight);
+Finally, you can use this script to help purchase any number of LT&T inflatable offices:
 
-// lets you buy any number of inflatable office to sell or use later
+
+```
 buy_inflatable_ltt_office(int 5);
-
 ```
