@@ -64,6 +64,7 @@ a telegram quest has already been started. Can be one of:
 > telegram --no-prep
 ```
 
+
 Several publically callable functions are available from this script, which could be used within your own scripts as follows. 
 
 To print the available LT&T quests:
@@ -71,7 +72,6 @@ To print the available LT&T quests:
 ```
 import <telegram.ash>;
 
-// see whats available
 print_available_ltt_office_quests();
 ```
 
