@@ -76,10 +76,10 @@ print_available_ltt_office_quests();
 ```
 
 In this example, we call do_ltt_office_quest with 1 (i.e., easy). Since it is easy, 
-we won't require the script to prepare for the boss fight (which saves meat from buffs and combat) 
+we decide to not require the script to prepare for the boss fight (which saves meat from buffs and combat) 
 and we will allow the script to handle the boss fight. 
 ```
-boolean do_boss_prep = false; // this determine if script will prepare for the boss fight
+boolean do_boss_prep = false;
 boolean do_boss_fight = true;
 do_ltt_office_quest(1, do_boss_prep, do_boss_fight);
 ```
