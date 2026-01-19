@@ -86,7 +86,7 @@ do_ltt_office_quest(1, do_boss_prep, do_boss_fight);
 
 If you are using inflatable LT&T offices, then only one quest is allowed per use. If you have a permanent installation, 
 then the second quest of the day will cost 1,000 meat (and subsequent quests will increase by 10x each instance). 
-There are several enums in the format of TELEGRAM_HARD/MEDIUM/EASY_QUEST can be called to set the difficulty of the quest, instead of using integers. 
+There are several enums in the format of TELEGRAM_HARD/MEDIUM/EASY_QUEST that can be called to set the difficulty of the quest, instead of using integers. 
 ```
 do_ltt_office_quest(TELEGRAM_MEDIUM_QUEST, do_boss_prep, do_boss_fight);
 ```
